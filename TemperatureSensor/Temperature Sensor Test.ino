@@ -1,4 +1,12 @@
+/*
+Quoting (author)DrHaney's GitHub, this library:
+...converts a Pt100 temperature sensor resistance into degrees Celsius
+using a lookup table taken from empirical data in the DIN 43760 / IEC 751 document.
+This library's conversion accuracy is authoritative such that other purely computational
+methods may be validated against it.
+*/
 #include <pt100rtd.h>
+
 #include <Adafruit_MAX31865.h>
 
 // Using software SPI        :               CS, DI, DO, CLK
