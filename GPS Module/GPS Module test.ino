@@ -1,4 +1,3 @@
-
 #include "Adafruit_GPS.h"
 #include "SoftwareSerial.h"
 SoftwareSerial serial(3, 2);
