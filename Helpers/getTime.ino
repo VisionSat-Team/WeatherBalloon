@@ -1,5 +1,8 @@
 /*
 There's no actual getTime() function rather an array holding the time.
+We could always skip the updateTime() function and time[] array and just
+call GPS.parse(GPS.lastNMEA()) to update the GPS' time variables and then use 
+those variables.
 */
 #include <Adafruit_GPS.h>
 
