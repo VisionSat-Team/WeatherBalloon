@@ -1,3 +1,6 @@
+/*
+There's no actual getTime() function rather an array holding the time.
+*/
 #include <Adafruit_GPS.h>
 
 #include "SoftwareSerial.h"
