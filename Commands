@@ -1,0 +1,6 @@
+List of Commands from Ground Station to Payload 
+
+1.) Cut Wire: 
+2.) Start: Initialize Pressure
+3.) Change delay: 1-minute delay default
+4.) Instant Capture: Call CaptureData()
