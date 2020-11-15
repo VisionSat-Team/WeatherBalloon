@@ -1,1 +1,24 @@
+TNC Notes on Use 
 
+•	AX.25 Interface (Rizwan’s program, on ground station computer)
+  o	Previous Destination Callsign: KF5BNL (7)
+  o	Repeater Callsign: CQ  (0)
+  o	Serial Port for Ground Station COM4
+  o	Baudrate 9600
+  o	Parity: None
+  o	Data Bits: 8 
+  o	Stop Bits: 1
+  o	Use AX25 (Checked)
+  o	Use Repeater Address (Checked) 
+•	Usually doesn’t Work on First Try 
+•	KEY_UP function
+  o	Sets header: callsigns(3) & start character 
+  o	Sends commands after header 
+•	Receives Packets 
+  o	Uses AX.25 Interface 
+  o	Read serial buffer using readStringUntil(59); 
+    	59 is ascii ‘;’
+•	Hardware 
+  o	Pins 3.3V, GRND, RX(on TNC), TX (on TNC) 
+  o	RX on TNC  TX on Arduino 
+•	No interrupt for Commands, will use polling in main loop (see code on GitHub) 
