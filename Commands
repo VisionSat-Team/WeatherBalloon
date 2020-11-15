@@ -1,6 +1,13 @@
 List of Commands from Ground Station to Payload 
 
 1.) Cut Wire: 
+  - *cutwr; 
 2.) Start: Initialize Pressure
-3.) Change delay: 1-minute delay default
+  - *start;
+3.) Change delay: Change deal
+  - *cdnnn; (nnn # of seconds)
 4.) Instant Capture: Call CaptureData()
+  - *captr; 
+
+Start Character: *
+End Character: ;
