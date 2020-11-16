@@ -4,7 +4,7 @@
 
    Sensors:
     SD Card:      Adafruit MicroSD card breakout board
-    Temperature:  Adafruit PT100 RTD Temperature Sensor Amplifier - MAX31865
+    Temperature:  Adafruit PT100 RTD and MAX31865 Temperature Sensor
     GPS:          Parallax SIM33EAU GPS Module
     Altimeter:    Parallax Altimeter Module MS5607
     Camera:       ArduCam OV5642 5MP Camera
