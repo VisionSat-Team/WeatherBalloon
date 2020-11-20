@@ -15,7 +15,8 @@
 // Libraries @@@@@
 #include <SPI.h>            // SPI 
 #include <SD.h>             // SD Card 
-#include <MicroNMEA.h>      // GPS
+#include <Adafruit_GPS.h>  // GPS
+#include <SoftwareSerial.h> // GPS
 #include <SoftwareSerial.h> // TNC 
 
 // Timer Variables
@@ -202,7 +203,7 @@ void setup()
      
      
 uint32_t timer = millis();
-void loop() // run over and over again
+
 {
   // read data from the GPS in the 'main loop'
   char c = GPS.read();
@@ -233,14 +234,10 @@ void loop() // run over and over again
     Serial.print(" quality: "); Serial.println((int)GPS.fixquality);
 //If GPS module has a fix, line by line prints the GPS information
     if (GPS.fix) {
-      Serial.print("Location: ");
-      Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
-      Serial.print(", ");
-      Serial.print(GPS.longitude, 4); Serial.println(GPS.lon);
-      Serial.print("Speed (knots): "); Serial.println(GPS.speed);
-      Serial.print("Angle: "); Serial.println(GPS.angle);
-      Serial.print("Altitude: "); Serial.println(GPS.altitude);
-      Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
+        // String Building: Save GPSData to desired value
+  // GPSData = @@@@@;
+    gpsData = String(GPS.latitude,4) + "N" + ";" + String(GPS.longitude,4) + "W" + ";" + GPS.speed + ";" + GPS.satellites;
+
     }
   }  }
   // String Building: Save GPSData to desired value
