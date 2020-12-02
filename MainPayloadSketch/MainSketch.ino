@@ -11,7 +11,31 @@
 
    @@@@@: Indicates that this section is not yet complete
  ************************************************************************/
+#include <pt100rtd.h>
+#include <Wire.h>
+#include <math.h>
+#include <MS5xxx.h>
+#include <Adafruit_MAX31865.h>
 
+// Using hardware SPI        :               CS, DI, DO, CLK
+Adafruit_MAX31865 thermo = Adafruit_MAX31865(10, 11, 12, 13);
+
+// The value of the Rref resistor. We are using the PT100 whose
+// value is 430
+#define RREF      430.0
+
+// The 'nominal' 0-degrees-C resistance of the PT100 sensor
+#define RNOMINAL  100.0
+
+// init the Pt100 table lookup module from DrHaney's PT100RTD library
+pt100rtd PT100 = pt100rtd() ;
+
+#define MS5607_ADDRESS 0x76
+
+char receivedChar;
+bool newData = false;
+
+MS5xxx pressureSensor(&Wire);
 // Libraries @@@@@
 #include <SPI.h>            // SPI 
 #include <SD.h>             // SD Card 
@@ -52,6 +76,20 @@ SoftwareSerial portTNC(10, 11); // RX, TX
 void setup() {
   // Open Serial Communications
   Serial.begin(9600);
+   
+  thermo.begin(MAX31865_3WIRE);  // We are using a 3-wire RTD
+
+  numSamples = 20;
+  meanPressure = 0;
+  pressureSensor.setI2Caddr(MS5607_ADDRESS);
+  if(pressureSensor.connect() > 0) {
+    Serial.println("Error connecting...");
+    delay(200);
+    setup();}
+   pressureSensor.ReadProm();
+  pressureSensor.Readout();
+  p_ref =  pressureSensor.GetPres();
+  t_ref = lookUpTemperature();
   while (!Serial) {
     ;  // wait for serial port to connect
   }
@@ -154,9 +192,12 @@ void CaptureData() {
 /*
 TODO: return floating point temperature in Farenheit, for emmanuel
 */
-void GetTemperature() { // Updates String temperatureData
+float GetTemperature() { // Updates String temperatureData
   // Read Sensor Data
-
+    uint32_t dummy = ((uint32_t)(thermo.readRTD() << 1)) * 100 * ((uint32_t) floor(RREF)) ;
+  dummy >>= 16 ; 
+  temperatureData = (PT100.celsius((uint16_t) (dummy & 0xFFFF))) + 273.15;
+   return temperatureData
   // String Building: Save temperatureData to desired value
   // temperatureData = @@@@@;
 }
@@ -202,6 +243,22 @@ void setup()
   delay(1000);
   // Ask for firmware version
   Serial.println(PMTK_Q_RELEASE);
+   
+  thermo.begin(MAX31865_3WIRE);  // We are using a 3-wire RTD
+
+  numSamples = 20;
+  meanPressure = 0;
+  pressureSensor.setI2Caddr(MS5607_ADDRESS);
+  if(pressureSensor.connect() > 0) {
+    Serial.println("Error connecting...");
+    delay(200);
+    setup();
+  }
+  
+  pressureSensor.ReadProm();
+  pressureSensor.Readout();
+  p_ref =  pressureSensor.GetPres();
+  t_ref = lookUpTemperature();
 }
      
      
@@ -249,9 +306,52 @@ uint32_t timer = millis();
 }
 void GetAltimeter() {   // Updates String altimeterData
   // Read Sensor Data
-
+double R = 8.314472, m = 28.97, g = 9.80665;
+  
+  return log(p_ref / getPressure()) * (R * lookUpTemperature()) / (m * g);
   // String Building: Save GPSData to desired value
   // altimeterData = @@@@@;
+}
+void checkFault(void) {
+  // Check and print any faults
+  uint8_t fault = thermo.readFault();
+  if (fault) {
+    Serial.print("Fault 0x"); Serial.println(fault, HEX);
+    if (fault & MAX31865_FAULT_HIGHTHRESH) {
+      Serial.println('A'); 
+    }
+    if (fault & MAX31865_FAULT_LOWTHRESH) {
+      Serial.println('B'); 
+    }
+    if (fault & MAX31865_FAULT_REFINLOW) {
+      Serial.println('C'); 
+    }
+    if (fault & MAX31865_FAULT_REFINHIGH) {
+      Serial.println('D'); 
+    }
+    if (fault & MAX31865_FAULT_RTDINLOW) {
+      Serial.println('E'); 
+    }
+    if (fault & MAX31865_FAULT_OVUV) {
+      Serial.println('F'); 
+    }
+    thermo.clearFault();
+  }
+}
+double getPressure() {
+  pressureSensor.ReadProm();
+  pressureSensor.Readout();
+  pressure = pressureSensor.GetPres();
+
+  if (meanPressure == 0){
+    // On the first run "prefill" the mean value as the current value
+    meanPressure = pressure * numSamples;
+  }
+  else{
+    meanPressure = meanPressure - (meanPressure / numSamples) + pressure;
+    pressure = meanPressure / numSamples;
+  }
+  return pressure;
 }
 void GetTime() {        // Updates String timeData
   // Read Sensor Data
