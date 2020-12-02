@@ -150,6 +150,10 @@ void CaptureData() {
 
   SensorData = timeData + "," + temperatureData + "," + GPSData + "," + altimeterData;
 }
+
+/*
+TODO: return floating point temperature in Farenheit, for emmanuel
+*/
 void GetTemperature() { // Updates String temperatureData
   // Read Sensor Data
 
