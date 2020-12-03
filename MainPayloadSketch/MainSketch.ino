@@ -44,7 +44,8 @@ MS5xxx pressureSensor(&Wire);
 #include <SoftwareSerial.h> // TNC 
 
 // Timer Variables
-int secondsPast; // Number of Seconds since last read
+unsigned long timerMilis = millis(); // Number of miliSeconds returned from arduino board
+unsigned long beaconDelay;// the delay for the beacon 
 
 // Sensor Data String declaration
 String temperatureData; // Individual Sensor data
@@ -78,7 +79,10 @@ void setup() {
   Serial.begin(9600);
    
   thermo.begin(MAX31865_3WIRE);  // We are using a 3-wire RTD
-
+  
+   
+  beaconDelay = 60000;
+   
   numSamples = 20;
   meanPressure = 0;
   pressureSensor.setI2Caddr(MS5607_ADDRESS);
@@ -109,7 +113,7 @@ void setup() {
     SD_init = false; // Card failed to initialize
   }
 
-  // Initialize Timer1
+  /* Initialize Timer1
   TCCR1A = 0;
   TCCR1B = 0;
   TCCR1B |= (1 << WGM12);   // CTC mode
@@ -120,12 +124,13 @@ void setup() {
   //(16MHz/1024prescale)*4 = 62,500 4 seconds
   TCNT1 = 0;                // Start Timer at 0
   interrupts();             // enable all interrupts
+  */
 }
 
 /************************** MAIN LOOP **************************/
 void loop() {
   // Poll the Timer_Flag
-  if (secondsPast >= 60) {
+  if (timerMilis % beaconDelay == 0) {
     // Capture & Save Data
     CaptureData();
     SaveData();
@@ -160,15 +165,42 @@ void loop() {
     // case "":
     //break;
     //}
+     if(TNC_message.toLowerCase() == "cutdown") {
+        cutDown();
+        //You can include this later in the cutDown Fuction();
+        KeyUp("Cutdown Command Recieved")
+     }
+     else if(TNC_message.toLowerCase() == "beacon"){
+        /* 
+           Sends the most recent data. 
+           But it should be distinct 
+        */
+        KeyUp("Manual Beacon: " + SendData);
+        
+     }
+     else if(TNC_message.substring(0,5).toLowerCase() == "delay")
+        /* 
+            Parses the TNC_message after the first 5 characters.
+            The next characters should be the time for the delay in MilliSeconds 
+            To change the delay variable "beaconDelay"
+        */
+        changeDelay(TNC_message.substring(5));
+     }
+     else if(TNC_message == "capture");
+        //This our instant capture
+        CaptureData();
+     }  
+     else 
+        KeyUp("Command does not exist");
   }
 }
 
 /************************** FUNCTIONS **************************/
-// Interrupt Service Routine
+/* Interrupt Service Routine
 ISR(TIMER1_COMPA_vect) { // timer compare interrupt service routine
   secondsPast += 4;
 }
-
+*/
 void KeyUp(String SendMessage) {
   //Key up and put ax25 header.
   //portTNC leads into the TNC which ultimately transmits over the radio
@@ -181,7 +213,8 @@ void KeyUp(String SendMessage) {
 
 // Sensor & Data Functions
 void CaptureData() {
-  GetTemperature();
+  //Fix the CaptureData and delete the global varibles except sensorData
+  timeData = String(GetTemperature());
   GetGPS();
   GetAltimeter();
   GetTime();
@@ -304,7 +337,7 @@ uint32_t timer = millis();
   // String Building: Save GPSData to desired value
   // GPSData = @@@@@;
 }
-void GetAltimeter() {   // Updates String altimeterData
+double GetAltimeter() {   // Updates String altimeterData
   // Read Sensor Data
 double R = 8.314472, m = 28.97, g = 9.80665;
        double temp = lookUpTemperature()
@@ -360,6 +393,10 @@ void GetTime() {        // Updates String timeData
   // String Building: Save timeData to desired value
   // timeData in form of: hhmmss
   // timeData = @@@@@;
+}
+void GetPicture(){
+   //Returns the picture 
+   
 }
 void SaveData() {       // Save Sensor Data & Picture to SD Card 
   if (SD_init) { // If card successfully initialized in setup()
