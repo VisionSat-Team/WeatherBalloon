@@ -213,8 +213,9 @@ void KeyUp(String SendMessage) {
 
 // Sensor & Data Functions
 void CaptureData() {
+  //Travis
   //Fix the CaptureData and delete the global varibles except sensorData
-  timeData = String(GetTemperature());
+  String temperatureData = String(GetTemperature());
   GetGPS();
   GetAltimeter();
   GetTime();
@@ -237,7 +238,7 @@ float GetTemperature() {
   return 32 + (PT100.celsius(ohmsx100) * (9 / 5.0f));
 }
 
-void GetGPS() {         // Updates String GPSData
+string GetGPS() {         // Updates String GPSData
   // Read Sensor Data
 
 #include "Adafruit_GPS.h"
@@ -333,7 +334,7 @@ uint32_t timer = millis();
     if (GPS.fix) {
         // String Building: Save GPSData to desired value
   // GPSData = @@@@@;
-    gpsData = String(GPS.latitude,4) + "N" + ";" + String(GPS.longitude,4) + "W" + ";" + GPS.speed + ";" + GPS.satellites;
+  return String(GPS.latitude,4) + "N" + ";" + String(GPS.longitude,4) + "W" + ";" + GPS.speed + ";" + GPS.satellites;
 
     }
   }  }
