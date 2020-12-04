@@ -223,16 +223,18 @@ void CaptureData() {
 }
 
 /*
-TODO: return floating point temperature in Farenheit, for emmanuel
+ * This method returns the temperature measured by the temperature sensor, in Farenheit.
+ * Author: Emmanuel
 */
-float GetTemperature() { // Updates String temperatureData
-  // Read Sensor Data
-    uint32_t dummy = ((uint32_t)(thermo.readRTD() << 1)) * 100 * ((uint32_t) floor(RREF)) ;
-  dummy >>= 16 ; 
-  temperatureData = (PT100.celsius((uint16_t) (dummy & 0xFFFF))) + 273.15;
-   return temperatureData
-  // String Building: Save temperatureData to desired value
-  // temperatureData = @@@@@;
+float GetTemperature() { 
+  uint16_t rtd = thermo.readRTD();
+  uint32_t dummy = ((uint32_t)(rtd << 1)) * 100 * ((uint32_t) floor(RREF));
+  dummy >>= 16 ;
+  
+  // This is the actual resistance of the RTD times 100
+  uint16_t ohmsx100 = (uint16_t) (dummy & 0xFFFF);  
+  
+  return 32 + (PT100.celsius(ohmsx100) * (9 / 5.0f));
 }
 void GetGPS() {         // Updates String GPSData
   // Read Sensor Data
