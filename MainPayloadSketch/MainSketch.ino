@@ -16,6 +16,10 @@
 #include <math.h>
 #include <MS5xxx.h>
 #include <Adafruit_MAX31865.h>
+#include <Adafruit_GPS.h> //GPS 
+#include <SoftwareSerial.h> 
+SoftwareSerial serial(3, 2); 
+Adafruit_GPS GPS(&serial); // GPS
 
 // Using hardware SPI        :               CS, DI, DO, CLK
 Adafruit_MAX31865 thermo = Adafruit_MAX31865(10, 11, 12, 13);
@@ -49,7 +53,7 @@ unsigned long beaconDelay;// the delay for the beacon
 
 // Sensor Data String declaration
 String temperatureData; // Individual Sensor data
-String GPSData;         // ^^
+String gpsData;         // ^^
 String altimeterData;   // ^^
 String timeData;        // ^^
 String SensorData;      // concatenated string of all sensor data
@@ -77,6 +81,30 @@ SoftwareSerial portTNC(10, 11); // RX, TX
 void setup() {
   // Open Serial Communications
   Serial.begin(9600);
+   
+  // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
+  Serial.begin(115200);
+   
+    // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
+  GPS.begin(9600);
+   
+  // uncomment this line to turn on RMC (recommended minimum) and GGA (fix data) including altitude
+  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+   
+  // uncomment this line to turn on only the "minimum recommended" data
+  //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
+   
+  // For parsing data, we don't suggest using anything but either RMC only or RMC+GGA since
+  // the parser doesn't care about other sentences at this time
+  // Set the update rate
+  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ); // 1 Hz update rate
+     
+  // Request updates on antenna status, comment out to keep quiet
+  GPS.sendCommand(PGCMD_ANTENNA);
+
+  delay(1000);
+  // Ask for firmware version
+  Serial.println(PMTK_Q_RELEASE); 
    
   thermo.begin(MAX31865_3WIRE);  // We are using a 3-wire RTD
   
@@ -216,11 +244,11 @@ void CaptureData() {
   //Travis
   //Fix the CaptureData and delete the global varibles except sensorData
   String temperatureData = String(GetTemperature());
-  GetGPS();
-  GetAltimeter();
-  GetTime();
+  String gpsData = String(GetGPS());
+  String altimeterData = (GetAltimeter());
+  String timeData = (GetTime());
 
-  SensorData = timeData + "," + temperatureData + "," + GPSData + "," + altimeterData;
+  SensorData = timeData + "," + temperatureData + "," + gpsData + "," + altimeterData;
 }
 
 /*
@@ -238,13 +266,9 @@ float GetTemperature() {
   return 32 + (PT100.celsius(ohmsx100) * (9 / 5.0f));
 }
 
-string GetGPS() {         // Updates String GPSData
-  // Read Sensor Data
 
-#include "Adafruit_GPS.h"
-#include "SoftwareSerial.h"
-SoftwareSerial serial(3, 2);
-Adafruit_GPS GPS(&serial);
+
+
      
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
 // Set to 'true' if you want to debug and listen to the raw GPS sentences
@@ -254,33 +278,7 @@ Adafruit_GPS GPS(&serial);
 // off by default!
 boolean usingInterrupt = false;
      
-void setup()
-{
-  // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
-  // also spit it out
-  Serial.begin(115200);
-  Serial.println("Adafruit GPS library basic test!");
-     
-  // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
-  GPS.begin(9600);
-  // uncomment this line to turn on RMC (recommended minimum) and GGA (fix data) including altitude
-  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
-  // uncomment this line to turn on only the "minimum recommended" data
-  //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
-  // For parsing data, we don't suggest using anything but either RMC only or RMC+GGA since
-  // the parser doesn't care about other sentences at this time
-  // Set the update rate
-  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ); // 1 Hz update rate
-  // For the parsing code to work nicely and have time to sort thru the data, and
-  // print it out we don't suggest using anything higher than 1 Hz
-     
-  // Request updates on antenna status, comment out to keep quiet
-  GPS.sendCommand(PGCMD_ANTENNA);
-
-  delay(1000);
-  // Ask for firmware version
-  Serial.println(PMTK_Q_RELEASE);
-   
+{   
   thermo.begin(MAX31865_3WIRE);  // We are using a 3-wire RTD
 
   numSamples = 20;
@@ -319,27 +317,36 @@ uint32_t timer = millis();
   }
   // if millis() or timer wraps around, we'll just reset it
   if (timer > millis()) timer = millis();
-     
+   
+      void GetTime() {        // Updates String timeData
+  // Read Sensor Data
   // approximately every 2 seconds or so, print out the current stats
   if (millis() - timer > 1000) {
     timer = millis(); // reset the timer
-    Serial.print("\nTime: ");
+/*  Serial.print("\nTime: ");
     Serial.print(GPS.hour -6, DEC); Serial.print(':');
     Serial.print(GPS.minute, DEC); Serial.print(':');
     Serial.print(GPS.seconds, DEC); Serial.print('.');
     Serial.println(GPS.milliseconds);
     Serial.print("Fix: "); Serial.print((int)GPS.fix);
-    Serial.print(" quality: "); Serial.println((int)GPS.fixquality);
-//If GPS module has a fix, line by line prints the GPS information
+    Serial.print(" quality: "); Serial.println((int)GPS.fixquality); */
+   
+    // String Building: Save timeData to desired value
+    // timeData in form of: hhmmss   
+    timeData = String(GPS.hour -6, DEC) + ":" + String(GPS.minute, DEC) + ":" + String(GPS.seconds, DEC) + "." + String(GPS.milliseconds);
+}
+
+  string GetGPS() {         // Updates String GPSData
+  // Read Sensor Data
+     
+     //If GPS module has a fix, line by line prints the GPS information
     if (GPS.fix) {
         // String Building: Save GPSData to desired value
-  // GPSData = @@@@@;
-  return String(GPS.latitude,4) + "N" + ";" + String(GPS.longitude,4) + "W" + ";" + GPS.speed + ";" + GPS.satellites;
+  
+  gpsData = String(GPS.latitude,4) + "N" + ";" + String(GPS.longitude,4) + "W";
 
     }
   }  }
-  // String Building: Save GPSData to desired value
-  // GPSData = @@@@@;
 }
 double GetAltimeter() {   // Updates String altimeterData
   // Read Sensor Data
@@ -391,13 +398,7 @@ double getPressure() {
   }
   return pressure;
 }
-void GetTime() {        // Updates String timeData
-  // Read Sensor Data
 
-  // String Building: Save timeData to desired value
-  // timeData in form of: hhmmss
-  // timeData = @@@@@;
-}
 void GetPicture(){
    //Returns the picture 
    
