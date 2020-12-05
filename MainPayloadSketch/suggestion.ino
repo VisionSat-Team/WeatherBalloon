@@ -6,9 +6,10 @@
 
 #define CAMERA_DATA_FILE "cameraData.txt"
 
-unsigned long delay;
+unsigned long captureDelay;
 boolean wireHasBeenCut;
 boolean currentDataSaved;
+boolean commandRecieved = false;
 
 // Variables for the camera module START
 
@@ -26,9 +27,11 @@ boolean SD_init = true;     // True unless card Fails to initialize
 const int chipSelect_SD = 10;
 //  SD Card Variables END
 
+unsigned long prev, now;
+
 void setup() {
-    delay = 60000000L;  // can always change this variable
-    unsigned long prev = micros();
+    captureDelay = 60000000L;  // can always change this variable
+    prev = micros();
     currentDataSaved = true;
 
     // Camera Stuff START
@@ -84,9 +87,9 @@ void loop() {
     }
     // stops capturing and saving data after wire has been cut
     if (!wireHasBeenCut) {
-        unsigned long now = micros();
+        now = micros();
 
-        if (now - prev >= delay) {
+        if (now - prev >= captureDelay) {
             prev = now;
             captureData();
             takeAndSavePicture();
@@ -180,3 +183,7 @@ uint8_t read_fifo_burst(ArduCAM myCAM) {
 String getTime() {
     return "pretend this already works";
 }
+
+void doCommand(){}
+void captureData(){}
+void saveData(){}
