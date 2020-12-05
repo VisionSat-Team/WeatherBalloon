@@ -170,9 +170,10 @@ uint8_t read_fifo_burst(ArduCAM myCAM) {
             realLength = realLength + 2;
         }
         if ((temp == 0xD9) && (temp_last == 0xFF)) {
+            CurrentPictureFile.println();
             break;
         }
-        delayMicroseconds(15);
+        delayMicroseconds(5);
     }
 
     myCAM.CS_HIGH();
