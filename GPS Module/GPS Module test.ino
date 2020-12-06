@@ -10,6 +10,7 @@ Adafruit_GPS GPS(&serial);
 // this keeps track of whether we're using the interrupt
 // off by default!
 boolean usingInterrupt = false;
+int hours = 0;
      
 void setup()
 {
@@ -40,7 +41,7 @@ void setup()
 }
      
      
-     
+    
 uint32_t timer = millis();
 void loop() // run over and over again
 {
@@ -62,16 +63,21 @@ void loop() // run over and over again
   if (timer > millis()) timer = millis();
      
   // approximately every 2 seconds or so, print out the current stats
+  
+  hours = GPS.hour -6;
+  if(hours > 12) hours-=12;
+  if(hours<= 0) hours+=12;
+  
   if (millis() - timer > 2000) {
     timer = millis(); // reset the timer
     Serial.print("\nTime: ");
-    Serial.print(GPS.hour, DEC); Serial.print(':');
+    Serial.print(hours, DEC); Serial.print(':');
     Serial.print(GPS.minute, DEC); Serial.print(':');
     Serial.print(GPS.seconds, DEC); Serial.print('.');
     Serial.println(GPS.milliseconds);
     Serial.print("Date: ");
-    Serial.print(GPS.day, DEC); Serial.print('/');
-    Serial.print(GPS.month, DEC); Serial.print("/20");
+    Serial.print(GPS.month , DEC); Serial.print('/');
+    Serial.print(GPS.day, DEC); Serial.print("/20");
     Serial.println(GPS.year, DEC);
     Serial.print("Fix: "); Serial.print((int)GPS.fix);
     Serial.print(" quality: "); Serial.println((int)GPS.fixquality);
@@ -90,4 +96,5 @@ void loop() // run over and over again
       Serial.print("Altitude: "); Serial.println(GPS.altitude);
       Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
     }
-  }  }
+  }  
+}
