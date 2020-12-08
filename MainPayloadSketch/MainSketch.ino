@@ -48,15 +48,9 @@ MS5xxx pressureSensor(&Wire);
 #include <SoftwareSerial.h> // TNC 
 
 // Timer Variables
-unsigned long timerMilis = millis(); // Number of miliSeconds returned from arduino board
+unsigned long timerMilis; // Number of miliSeconds returned from arduino board
 unsigned long beaconDelay;// the delay for the beacon 
 
-// Sensor Data String declaration
-String temperatureData; // Individual Sensor data
-String gpsData;         // ^^
-String altimeterData;   // ^^
-String timeData;        // ^^
-String SensorData;      // concatenated string of all sensor data
 // @@@@@ Camera: String or Array?
 
 // SD Card Variables
@@ -80,10 +74,10 @@ SoftwareSerial portTNC(10, 11); // RX, TX
 /************************* SETUP *************************/
 void setup() {
   // Open Serial Communications
-  Serial.begin(9600);
-   
-  // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
+  //More research on which baud rate to use
+  //Serial.begin(9600);
   Serial.begin(115200);
+  
    
     // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
   GPS.begin(9600);
@@ -102,9 +96,7 @@ void setup() {
   // Request updates on antenna status, comment out to keep quiet
   GPS.sendCommand(PGCMD_ANTENNA);
 
-  delay(1000);
-  // Ask for firmware version
-  Serial.println(PMTK_Q_RELEASE); 
+  
    
   thermo.begin(MAX31865_3WIRE);  // We are using a 3-wire RTD
   
@@ -154,19 +146,21 @@ void setup() {
   interrupts();             // enable all interrupts
   */
 }
-
+timerMilis = millis();
 /************************** MAIN LOOP **************************/
 void loop() {
-  // Poll the Timer_Flag
-  if (timerMilis % beaconDelay == 0) {
+  if (timerMilis > millis()) timerMilis = millis();
+  if (timerMilis - millis() >=  beaconDelay) {
+     timerMilis = milis();
     // Capture & Save Data
     CaptureData();
     SaveData();
     KeyUp(SensorData);
 
-    // Reset Timer (secondsPast & TCNT1) to 0
+    /* Reset Timer (secondsPast & TCNT1) to 0
     TCNT1 = 0;
     secondsPast = 0;
+    */
   }
 
   // Poll Serial Buffer for TNC Data
@@ -203,7 +197,7 @@ void loop() {
            Sends the most recent data. 
            But it should be distinct 
         */
-        KeyUp("Manual Beacon: " + SendData);
+        KeyUp("Manual Beacon: " + SensorData);
         
      }
      else if(TNC_message.substring(0,5).toLowerCase() == "delay")
@@ -243,10 +237,11 @@ void KeyUp(String SendMessage) {
 void CaptureData() {
   //Travis
   //Fix the CaptureData and delete the global varibles except sensorData
+  captureGPS();
   String temperatureData = String(GetTemperature());
-  String gpsData = String(GetGPS());
+  String gpsData = String(getLocation());
   String altimeterData = (GetAltimeter());
-  String timeData = (GetTime());
+  String timeData = (getTime());
 
   SensorData = timeData + "," + temperatureData + "," + gpsData + "," + altimeterData;
 }
@@ -265,89 +260,62 @@ float GetTemperature() {
 
   return 32 + (PT100.celsius(ohmsx100) * (9 / 5.0f));
 }
-
-
-
-
+void changeDelay(String message){
+   int newDelay = (int)message;
+   if(newDelay >= 5000){
+      beaconDelay = (int)newDelay;
+      KeyUP("Beacon Delay is now " + beaconDelay + " milliseconds";
+   }
+   else{
+      KeyUP("Beacon Delay not changed.The mininmum delay is at 5000 milliseconds")
+   }
+}
      
-// Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
-// Set to 'true' if you want to debug and listen to the raw GPS sentences
-#define GPSECHO false
-     
-// this keeps track of whether we're using the interrupt
-// off by default!
-boolean usingInterrupt = false;
-     
-{   
-  thermo.begin(MAX31865_3WIRE);  // We are using a 3-wire RTD
 
-  numSamples = 20;
-  meanPressure = 0;
-  pressureSensor.setI2Caddr(MS5607_ADDRESS);
-  if(pressureSensor.connect() > 0) {
-    Serial.println("Error connecting...");
-    delay(200);
-    setup();
+//Caputures the 2 NMEA sentences needed to parse the GPS data in the Adafruit GPS libary
+void captureGps(){
+  int sentenceCount = 0;
+  while(sentenceCount <=2){
+    while (!GPS.newNMEAreceived())
+  {
+    GPS.read();
   }
-  
-  pressureSensor.ReadProm();
-  pressureSensor.Readout();
-  p_ref =  pressureSensor.GetPres();
-  t_ref = lookUpTemperature();
-}
-     
-     
-     
-uint32_t timer = millis();
 
-{
-  // read data from the GPS in the 'main loop'
-  char c = GPS.read();
-  // if you want to debug, this is a good time to do it!
-  if (GPSECHO)
-    if (c) Serial.print(c);
-  // if a sentence is received, we can check the checksum, parse it...
-  if (GPS.newNMEAreceived()) {
-    // a tricky thing here is if we print the NMEA sentence, or data
-    // we end up not listening and catching other sentences!
-    // so be very wary if using OUTPUT_ALLDATA and trytng to print out data
-    Serial.println(GPS.lastNMEA()); // this also sets the newNMEAreceived() flag to false
-    if (!GPS.parse(GPS.lastNMEA())) // this also sets the newNMEAreceived() flag to false
-      return; // we can fail to parse a sentence in which case we should just wait for another
+  GPS.parse(GPS.lastNMEA());
+  sentenceCount +=1;
   }
-  // if millis() or timer wraps around, we'll just reset it
-  if (timer > millis()) timer = millis();
-   
-      void GetTime() {        // Updates String timeData
-  // Read Sensor Data
-  // approximately every 2 seconds or so, print out the current stats
-  if (millis() - timer > 1000) {
-    timer = millis(); // reset the timer
-/*  Serial.print("\nTime: ");
-    Serial.print(GPS.hour -6, DEC); Serial.print(':');
-    Serial.print(GPS.minute, DEC); Serial.print(':');
-    Serial.print(GPS.seconds, DEC); Serial.print('.');
-    Serial.println(GPS.milliseconds);
-    Serial.print("Fix: "); Serial.print((int)GPS.fix);
-    Serial.print(" quality: "); Serial.println((int)GPS.fixquality); */
-   
-    // String Building: Save timeData to desired value
-    // timeData in form of: hhmmss   
-    timeData = String(GPS.hour -6, DEC) + ":" + String(GPS.minute, DEC) + ":" + String(GPS.seconds, DEC) + "." + String(GPS.milliseconds);
-}
-
-  string GetGPS() {         // Updates String GPSData
-  // Read Sensor Data
-     
-     //If GPS module has a fix, line by line prints the GPS information
-    if (GPS.fix) {
-        // String Building: Save GPSData to desired value
+String getTime(){
+  //Turns the hours into standard time
+  int hours = GPS.hour -6;
+  if(hours > 12) hours-=12;
+  if(hours<= 0) hours+=12;
   
-  gpsData = String(GPS.latitude,4) + "N" + ";" + String(GPS.longitude,4) + "W";
-
-    }
-  }  }
+  //String manlipulations for User to read easier  
+  String minutes = String(GPS.minute);
+  String sec = String(GPS.seconds);
+  if(GPS.minute < 10) minutes = "0" + minutes;
+  if(GPS.seconds < 10) sec = "0" + sec;
+   
+  return String(hours) + ":"+ minutes + ":" + sec;
+  
 }
+String getLocation(){
+  /*
+    The GPS fix tells us if the GPS is recieving a signal from Satilites 
+    and can be seen on our GPS Sensor as a bluelight.
+    If the light is not on ,there can be many reasons but I suggest first move locations. 
+    Without the fix the GPS can not recieve any data. 
+  */
+  if(GPS.fix){
+    return String(GPS.latitudeDegrees ) + ", " + String(GPS.longitudeDegrees);
+  }
+  return " Error No Fix";
+}
+
+  
+     
+     
+
 double GetAltimeter() {   // Updates String altimeterData
   // Read Sensor Data
 double R = 8.314472, m = 28.97, g = 9.80665;
