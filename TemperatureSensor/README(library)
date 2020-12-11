@@ -1,8 +1,0 @@
-Go to the github link at the bottom of the folder.
-Download the zip file
-Move the downloaded zip file to the library sub folder of the arduino folder in your personal files.
-Open the arduino ide
-go to sketch
-include library
-add .zip file
-select pt100rtd
