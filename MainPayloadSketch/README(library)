@@ -24,7 +24,7 @@ https://www.youtube.com/watch?v=hybQpjwJ4aA&feature=youtu.be
 
 
 pt100rtd:
-Go to the github link at the bottom of the temperature folder.
+Go to the github link at: https://github.com/drhaney/pt100rtd
 Download the zip file
 Move the downloaded zip file to the library sub folder of the arduino folder in your personal files.
 Open the arduino ide
