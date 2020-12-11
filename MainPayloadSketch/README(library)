@@ -4,7 +4,7 @@ search MS5611
 instal
 
 
-Wire.h, SPI,  and math.h is preinstalled into arduino so you dont have to worry about searching for these.
+Wire.h, SPI, SD, and math.h is preinstalled into arduino so you dont have to worry about searching for these.
 
 
 MS5xxx: 
