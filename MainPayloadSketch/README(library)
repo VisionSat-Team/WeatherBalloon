@@ -1,0 +1,12 @@
+Wire.h and math.h is preinstalled into arduino so you dont have to worry about searching for these.
+
+
+MS5xxx: 
+ctrl+shift+I to open library manager
+search MS5xxx
+instal
+
+
+Adafruit_MAX31865:
+open library manager
+search Adafruit_MAX31865
