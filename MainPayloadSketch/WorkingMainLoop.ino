@@ -44,7 +44,7 @@ double pressure, temperature, p_ref, t_ref, altitude, meanPressure, numSamples;
 
 /*  Temperature sensor variables START  */
 // Using hardware SPI        :               CS, DI, DO, CLK
-Adafruit_MAX31865 thermo = Adafruit_MAX31865(10, 11, 12, 13);
+Adafruit_MAX31865 thermo = Adafruit_MAX31865(10, 51, 50, 52);
 pt100rtd PT100 = pt100rtd();
 /*  Temperature sensor variables END  */
 
