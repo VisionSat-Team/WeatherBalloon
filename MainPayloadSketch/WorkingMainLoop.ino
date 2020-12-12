@@ -32,7 +32,7 @@ uint8_t read_fifo_burst(ArduCAM myCAM);
 int SD_initCount;           // Used for Initializing SD Card
 int SD_initCountLimit = 5;  // # of times to try initializing SD Card
 boolean SD_init = true;     // True unless card Fails to initialize
-const int chipSelect_SD = 10;
+const int chipSelect_SD = 53;
 //  SD Card Variables END
 
 //  Altimeter Module Variables START
