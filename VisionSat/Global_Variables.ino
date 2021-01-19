@@ -1,9 +1,5 @@
 
-long timermillis;
-
-long timer;
-
-long millis;
+long timerMillis;
 
 int zeroHex = 0x00;
 
