@@ -6,7 +6,8 @@ void loop() {
     
     captureData();
     saveData();
-    keyUp(SensorData);
+    keyUp(sensorData);
+    Serial.print(sensorData)
 
   }
 
@@ -19,7 +20,7 @@ void loop() {
     
      if(TNC_message.toLowerCase() == "cutdown") {
         cutDown();
-        KeyUp("Cutdown Command Recieved");
+        keyUp("Cutdown Command Recieved");
      }
      else if(TNC_message.toLowerCase() == "beacon"){
         keyUp("Manual Beacon: " + sensorData);
@@ -36,7 +37,8 @@ void loop() {
         //This our instant capture
          captureData();
      }  
-     else 
+     else {
         keyUp("Command does not exist");
+     {
   }
 }
