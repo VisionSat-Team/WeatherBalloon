@@ -9,10 +9,10 @@ int zeroHex = 0x00;
 
 int chipsel = 10;
 
-String ThcMessage;
+String tncMessage;
 
-long BeaconDelay = 60000;
+long beaconDelay = 60000;
 
-String SensorData= "";
+String sensorData= "";
 
 int centralStandardTime;
