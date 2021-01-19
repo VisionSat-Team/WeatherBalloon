@@ -66,6 +66,14 @@ void setup() {
     SD_init = false; // Card failed to initialize
   }
   //  Initialize SD Card END
+  
+  // Initialzie GPS START 
+  GPS.begin(9600);
+  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
+  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  GPS.sendCommand(PGCMD_ANTENNA);
+  delay(1000);
+  // Initialize GPS END
 
   /*  Initialise Temperature sensor START */
   thermo.begin(MAX31865_3WIRE);
