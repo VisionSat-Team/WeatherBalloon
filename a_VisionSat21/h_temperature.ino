@@ -6,6 +6,19 @@ This library's conversion accuracy is authoritative such that other purely compu
 methods may be validated against it.
 */
 
+
+// This method calculates and returns the temperature looked up by DrHaney's library.
+float lookUpTemperature(){
+  uint16_t rtd = thermo.readRTD();
+  uint32_t dummy = ((uint32_t)(rtd << 1)) * 100 * ((uint32_t) floor(RREF)) ;
+  dummy >>= 16 ;
+  
+  // This is the actual resistance of the RTD times 100
+  uint16_t ohmsx100 = (uint16_t) (dummy & 0xFFFF) ;  
+  return PT100.celsius(ohmsx100) ;
+}
+
+
 void checkFault(void) {
   // Check and print any faults
   uint8_t fault = thermo.readFault();
@@ -31,16 +44,4 @@ void checkFault(void) {
     }
     thermo.clearFault();
   }
-}
-
-// This method calculates and returns the temperature looked up by DrHaney's library.
-float lookUpTemperature(){
-
-  uint16_t rtd = thermo.readRTD();
-  uint32_t dummy = ((uint32_t)(rtd << 1)) * 100 * ((uint32_t) floor(RREF)) ;
-  dummy >>= 16 ;
-  
-  // This is the actual resistance of the RTD times 100
-  uint16_t ohmsx100 = (uint16_t) (dummy & 0xFFFF) ;  
-  return PT100.celsius(ohmsx100) ;
 }

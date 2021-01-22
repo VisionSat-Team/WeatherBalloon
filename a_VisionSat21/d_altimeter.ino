@@ -109,8 +109,6 @@ double getAltimeter() {
   // Read Sensor Data
   double R = 8.314472, m = 28.97, g = 9.80665;
   double temp = lookUpTemperature();
-  Serial.println(temp * 9 / 5 - 459.67);
+//  Serial.println(temp * 9 / 5 - 459.67); //////
   return log(p_ref / getPressure()) * (R * temp) / (m * g);
-  // String Building: Save GPSData to desired value
-  // altimeterData = @@@@@;
 }
