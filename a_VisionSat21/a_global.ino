@@ -1,50 +1,51 @@
-long timerMillis;
+/* global
+ *  Global variable declaration */
 
+// General START
+long beaconDelay;
+long previousMillis; // Last Beacon Time 
+String sensorData;
+String fileName;
+// General END
 
-
-long beaconDelay = 5000;
-
-String sensorData= "kkugbi";
-
-int centralStandardTime;
 
 // TNC START
 int zeroHex = 0x00;
 byte header[25] = {0xC0, zeroHex, 0xAE, 0x6A, 0xAA, 0x98, 0x40, 0x40, 0xF6, 0xAE, 0x6A, 0xAA,
                    0x98, 0x40, 0x40, 0x60, 0x86, 0xA2, 0x40, 0x40, 0x40, 0x40, 0x61, 0x03, 0xF0};
-
 String tncMessage;
 // TNC END 
 
-#define USE_BLUETOOTH false  // set to false to cummunicate via seria port
+
+// Altimeter START 
+#define USE_BLUETOOTH false  // set to false to communicate via seria port
 #define MS5607_ADDRESS 0x76
-
 MS5xxx pressureSensor(&Wire);
-
 // Set the reference pressure to the current pressure to get relative altitude changes
 double pressure, temperature, p_ref, t_ref, altitude, meanPressure, numSamples;
-
 char receivedChar;
 bool newData = false;
+// Altimeter END 
 
-// Using software SPI        :               CS, DI, DO, CLK
-Adafruit_MAX31865 thermo = Adafruit_MAX31865(10, 11, 12, 13);
 
-// The value of the Rref resistor. We are using the PT100 whose
-// value is 430
+// Temperature START 
+// Using software SPI (Sensor --> Mega Pin #) cs --> 10, SDI --> MOSI (51), SDO --> MISO (50), CLK --> SCK (52)
+const int temperatureCS = 10; 
+Adafruit_MAX31865 thermo = Adafruit_MAX31865(temperatureCS, 51, 50, 52);
+// The value of the Rref resistor. We are using the PT100 whose value is 430
 #define RREF      430.0
-
 // The 'nominal' 0-degrees-C resistance of the PT100 sensor
 #define RNOMINAL  100.0
-
 // init the Pt100 table lookup module from DrHaney's PT100RTD library
-pt100rtd PT100 = pt100rtd() ;
+pt100rtd PT100 = pt100rtd();
+// Temperature END 
 
 
-
+// GPS START 
 SoftwareSerial serial(3, 2);
 Adafruit_GPS GPS(&serial);
-
+int centralStandardTime;
+// GPS END 
 
 
 // Camera Variables START
