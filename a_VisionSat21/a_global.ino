@@ -29,9 +29,9 @@ bool newData = false;
 
 
 // Temperature START 
-// Using software SPI (Sensor --> Mega Pin #) cs --> 10, SDI --> MOSI (51), SDO --> MISO (50), CLK --> SCK (52)
-const int temperatureCS = 10; 
-Adafruit_MAX31865 thermo = Adafruit_MAX31865(temperatureCS, 51, 50, 52);
+// Using Hardware SPI (Sensor --> Mega Pin #) cs --> 10, SDI --> MOSI (51), SDO --> MISO (50), CLK --> SCK (52)
+//Software SPI is bad its too slow and relies on bitbanging.
+Adafruit_MAX31865 thermo = Adafruit_MAX31865(10);
 // The value of the Rref resistor. We are using the PT100 whose value is 430
 #define RREF      430.0
 // The 'nominal' 0-degrees-C resistance of the PT100 sensor
