@@ -69,18 +69,11 @@ void setup() {
 
 
   //  SD Card START  
-  SD_initCount = 0; // Number of times that Card attempted to Initialize
-  SD_init = true;   // Assume that card succeeded to initialize 
-  // If SD fails to initialize, keep trying 5 times
-  while (!SD.begin(SD_CS) && SD_initCount < 5) {
-    SD_initCount++; // Wait for SD Card to Initialize
-    delay(500); 
-  }
-  // If card failed to initialize in while loop AND fails to initialize again
-  if (!SD.begin(SD_CS) && SD_initCount == 5) {
-    SD_init = false; // Card failed to initialize
-  }
-  //  SD Card END
+  SD.begin(); 
+  fileName = "setup";
+  lastfileName = "setup";
+  duplicate = 0;
+  // SD Card END   
 
   
   // GPS START 
