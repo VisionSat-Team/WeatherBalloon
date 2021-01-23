@@ -57,7 +57,8 @@ uint8_t read_fifo_burst(ArduCAM myCAM);
 
 
 // SD Card START 
-boolean SD_init; 
 const int SD_CS = 53; 
-int SD_initCount; 
+String fileName;
+String lastFileName;
+int duplicate;
 // SD Card END 
