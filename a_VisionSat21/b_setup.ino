@@ -2,14 +2,12 @@
  *  Setup and Initialize all sensors */
 
 void setup() { 
-  Serial.println("setup started"); // Testing
-
   // General START
+  Serial.begin(115200);
   sensorData = "setup"; 
   fileName = "setup"; 
   beaconDelay = 5000; 
-  Serial.begin(115200);
-  previousMillis = millis(); 
+  previousBeacon = 0; 
   // General END 
 
 
