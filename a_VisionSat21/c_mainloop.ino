@@ -16,10 +16,6 @@ void loop() {
 
 // Sensor & Data Functions
 String captureData() {
-  //Travis
-  //Fix the CaptureData and delete the global varibles except sensorData
-//  Serial.println("start");
-
 //  captureGPS();
   String temperatureData = String(lookUpTemperature());
   String gpsData = String(getLocation());
