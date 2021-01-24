@@ -1,16 +1,17 @@
-void loop() {
+/ * mainloop
+  * mainloop & main capturedata() function * / 
 
-  if (millis() - beaconDelay >= previousMillis) {
+void loop() {
+  if (millis() - previousBeacon >= beaconDelay) {
+    previousBeacon = millis(); 
+    Serial.println("looping...");
 //    sensorData = captureData();
 //    Serial.println(sensorData);
-    Serial.println("looping...");
-
+//    saveData();
+    
     Serial.println(lookUpTemperature()); 
     Serial.println(getAltimeter()); 
-//    saveData();
-    previousMillis = millis(); 
   } 
-//  delay(5000); 
 }
 
 // Sensor & Data Functions
