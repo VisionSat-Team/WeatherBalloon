@@ -2,8 +2,8 @@
  *  Global variable declaration */
 
 // General START
-long beaconDelay;
-long previousMillis; // Last Beacon Time 
+unsigned long beaconDelay;     // Delay between Beacons
+unsigned long previousBeacon;  // Last Beacon Time 
 String sensorData;
 String fileName;
 // General END
