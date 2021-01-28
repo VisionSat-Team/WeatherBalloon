@@ -4,12 +4,18 @@
 void loop() {
 
   if (millis() - beaconDelay >= previousMillis) {
-//    Serial.println(sensorData);
     Serial.println("looping...");
 
-    Serial.println(captureData()); 
-    
-//    saveData();
+    // Capture Data
+    sensorData = captureData(); 
+
+    //Testing: Print data to serial 
+    Serial.println(sensorData); 
+
+    // Save Data 
+    saveData();
+
+    // Timer Functionality 
     previousMillis = millis(); 
   } 
  
@@ -17,9 +23,6 @@ void loop() {
 
 // Sensor & Data Functions
 String captureData() {
-  //Travis
-  //Fix the CaptureData and delete the global varibles except sensorData
-//  Serial.println("start");
 
   captureGPS();
   String temperatureData = String(toFarenheit());
