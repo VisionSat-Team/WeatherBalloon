@@ -2,7 +2,7 @@ void saveData() {
   fileName = getTime();
 
   if (fileName == lastFileName) {
-    fileName = fileName + duplicate; /// Goes to string? needs to be tested 
+    fileName = fileName + duplicate + ".txt"; /// Goes to string? needs to be tested 
     
     duplicate++;
     if (duplicate > 99) {
