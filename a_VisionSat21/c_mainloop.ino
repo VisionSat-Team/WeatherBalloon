@@ -2,25 +2,30 @@
   * mainloop & main capturedata() function * / 
 
 void loop() {
-  if (millis() - previousBeacon >= beaconDelay) {
-    previousBeacon = millis(); 
-    Serial.println("looping...");
-//    sensorData = captureData();
+
+  if (millis() - beaconDelay >= previousMillis) {
 //    Serial.println(sensorData);
-//    saveData();
+    Serial.println("looping...");
+
+    Serial.println(captureData()); 
     
-    Serial.println(lookUpTemperature()); 
-    Serial.println(getAltimeter()); 
+//    saveData();
+    previousMillis = millis(); 
   } 
+ 
 }
 
 // Sensor & Data Functions
 String captureData() {
-//  captureGPS();
-  String temperatureData = String(lookUpTemperature());
+  //Travis
+  //Fix the CaptureData and delete the global varibles except sensorData
+//  Serial.println("start");
+
+  captureGPS();
+  String temperatureData = String(toFarenheit());
   String gpsData = String(getLocation());
   String altimeterData = String(getAltimeter());
   String timeData = (getTime());
   
-  return timeData + "," + temperatureData + "," + gpsData + "," + altimeterData;
+  return temperatureData + "," + altimeterData + "," + gpsData +"," +timeData;
 }
