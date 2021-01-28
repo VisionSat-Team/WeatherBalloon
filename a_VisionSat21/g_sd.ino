@@ -12,6 +12,6 @@ void saveData() {
 
   lastFileName = fileName;
   File currentFile = SD.open(fileName, FILE_WRITE);
-  currentFile.println(captureData());
+  currentFile.println(sensorData);
   currentFile.close();
 }
