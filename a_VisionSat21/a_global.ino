@@ -2,10 +2,9 @@
  *  Global variable declaration */
 
 // General START
-unsigned long beaconDelay;     // Delay between Beacons
-unsigned long previousBeacon;  // Last Beacon Time 
+long beaconDelay;
+long previousMillis; // Last Beacon Time
 String sensorData;
-String fileName;
 // General END
 
 
@@ -42,7 +41,7 @@ pt100rtd PT100 = pt100rtd();
 
 
 // GPS START 
-SoftwareSerial serial(3, 2);
+SoftwareSerial serial(12, 11); // TX, RX going to GPS 
 Adafruit_GPS GPS(&serial);
 int centralStandardTime;
 // GPS END 
