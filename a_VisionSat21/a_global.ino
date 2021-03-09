@@ -2,10 +2,9 @@
  *  Global variable declaration */
 
 // General START
-unsigned long beaconDelay;     // Delay between Beacons
-unsigned long previousBeacon;  // Last Beacon Time 
+long beaconDelay;
+long previousMillis; // Last Beacon Time
 String sensorData;
-String fileName;
 // General END
 
 
@@ -14,6 +13,7 @@ int zeroHex = 0x00;
 byte header[25] = {0xC0, zeroHex, 0xAE, 0x6A, 0xAA, 0x98, 0x40, 0x40, 0xF6, 0xAE, 0x6A, 0xAA,
                    0x98, 0x40, 0x40, 0x60, 0x86, 0xA2, 0x40, 0x40, 0x40, 0x40, 0x61, 0x03, 0xF0};
 String tncMessage;
+SoftwareSerial port1(10,11); // RX, TX
 // TNC END 
 
 
@@ -31,7 +31,7 @@ bool newData = false;
 // Temperature START 
 // Using Hardware SPI (Sensor --> Mega Pin #) cs --> 10, SDI --> MOSI (51), SDO --> MISO (50), CLK --> SCK (52)
 //Software SPI is bad its too slow and relies on bitbanging.
-Adafruit_MAX31865 thermo = Adafruit_MAX31865(10);
+Adafruit_MAX31865 thermo = Adafruit_MAX31865(9);
 // The value of the Rref resistor. We are using the PT100 whose value is 430
 #define RREF      430.0
 // The 'nominal' 0-degrees-C resistance of the PT100 sensor
@@ -42,8 +42,8 @@ pt100rtd PT100 = pt100rtd();
 
 
 // GPS START 
-SoftwareSerial serial(3, 2);
-Adafruit_GPS GPS(&serial);
+//SoftwareSerial serial(12, 11); // RX, TX
+Adafruit_GPS GPS(&Serial3);
 int centralStandardTime;
 // GPS END 
 
