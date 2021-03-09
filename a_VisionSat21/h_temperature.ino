@@ -15,7 +15,12 @@ float lookUpTemperature(){
   
   // This is the actual resistance of the RTD times 100
   uint16_t ohmsx100 = (uint16_t) (dummy & 0xFFFF) ;  
-  return PT100.celsius(ohmsx100) ;
+  return PT100.celsius(ohmsx100);
+}
+
+float toFarenheit(){
+
+  return lookUpTemperature()*9/5+32;
 }
 
 
