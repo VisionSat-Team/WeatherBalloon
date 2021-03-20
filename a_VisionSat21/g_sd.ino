@@ -1,8 +1,11 @@
 void saveData() {
-  fileName = getTime();
+//  fileName = getTime();
 
+  // Testing 
+  fileName = "test";
+  
   if (fileName == lastFileName) {
-    fileName = fileName + duplicate + ".txt"; /// Goes to string? needs to be tested 
+    fileName = fileName + String(duplicate) + ".txt"; /// Goes to string? needs to be tested 
     
     duplicate++;
     if (duplicate > 99) {
@@ -12,6 +15,6 @@ void saveData() {
 
   lastFileName = fileName;
   File currentFile = SD.open(fileName, FILE_WRITE);
-  currentFile.println(sensorData);
+  currentFile.println(  sensorData);
   currentFile.close();
 }
