@@ -1,0 +1,9 @@
+/* 
+ *  Cut Down Function
+ */
+void cutDown() { 
+  digitalWrite(cutDownPin, HIGH); 
+  delay(10000); 
+  isCutDown = true; 
+  digitalWrite(cutDownPin, LOW); 
+}
