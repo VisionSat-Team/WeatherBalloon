@@ -63,3 +63,8 @@ String fileName;
 String lastFileName;
 int duplicate;
 // SD Card END 
+
+// Cut Down START
+const int cutDownPin = 16; 
+boolean isCutDown = false; 
+// Cut Down END
