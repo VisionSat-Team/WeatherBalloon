@@ -1,4 +1,4 @@
-const int cutDownPin = 16; 
+const int cutDownPin = 16; //****** Needs to Be chosen *********
 boolean isCutDown = false; 
 
 void setup() {
