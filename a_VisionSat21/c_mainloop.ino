@@ -4,31 +4,31 @@
 void loop() {
 
   if (millis() - beaconDelay >= previousMillis) {
+    
     Serial.println("looping...");
-
-    // Capture Data
-    sensorData = captureData(); 
-
-    //Testing: Print data to serial 
-    Serial.println(sensorData); 
-
-    // Save Data 
+    sensorData = captureData();
+    keyUp(sensorData);
     saveData();
 
-    // Timer Functionality 
-    previousMillis = millis(); 
-  } 
- 
+    takePicture(); 
+    
+//  Serial.println( pressureSensor.GetPres());
+    previousMillis = millis();
+  }
+  captureGroundStation();
 }
 
 // Sensor & Data Functions
 String captureData() {
-
+  //Travis
+  //Fix the CaptureData and delete the global varibles except sensorData
+  Serial.println("start");
+  
   captureGPS();
   String temperatureData = String(toFarenheit());
   String gpsData = String(getLocation());
-  String altimeterData = String(getAltimeter());
+  String altimeterData = String(getAltitude());
   String timeData = (getTime());
-  
-  return temperatureData + "," + altimeterData + "," + gpsData +"," +timeData;
+
+  return temperatureData + "," + altimeterData + "," + gpsData + "," + timeData;
 }
