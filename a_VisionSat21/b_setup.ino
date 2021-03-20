@@ -90,6 +90,10 @@ void setup() {
   delay(1000);
   // GPS END
 
+  // Cut Down START
+  const int cutDownPin = 16; // *****Pick Pin*******
+  boolean isCutDown = false;
+  // Cut Down END
    
   Serial.println("setup finished"); // Testing
 
