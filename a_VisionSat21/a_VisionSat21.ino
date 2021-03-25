@@ -2,7 +2,6 @@
 #include <MS5xxx.h>
 #include <math.h>
 #include <Wire.h>
-
 #include <SPI.h>
 #include <pt100rtd.h>
 #include <Adafruit_MAX31865.h>
@@ -12,3 +11,4 @@
 #include <MicroNMEA.h>  // Get current time from GPS 
 #include <SoftwareSerial.h> 
 #include <Adafruit_GPS.h>
+#include <EEPROM.h>
