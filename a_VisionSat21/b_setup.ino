@@ -93,9 +93,8 @@ void setup() {
 
   //  SD Card START
   SD.begin(SD_CS);
-  fileName = "setup";
-  lastFileName = "setup";
-  duplicate = 0;
+  fileName = "";
+  picCountAddress = 0; 
   // SD Card END
 
 
