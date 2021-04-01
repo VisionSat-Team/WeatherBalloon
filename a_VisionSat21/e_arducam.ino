@@ -24,6 +24,47 @@ void takePicture() {
   myCAM.clear_fifo_flag();
     
 }
+void resetCam() {
+  boolean spi, module = false;
+
+  uint8_t temp;   //  temporary var
+  uint8_t vid, pid;
+
+  // initialize SPI:
+  SPI.begin();
+  Wire.begin();
+  SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE0));
+  myCAM.write_reg(0x07, 0x80);
+  delay(100);
+  myCAM.write_reg(0x07, 0x00);
+  delay(100);
+  //Check if the ArduCAM SPI bus is OK
+  while (1) {
+    myCAM.write_reg(ARDUCHIP_TEST1, 0x55);
+    temp = myCAM.read_reg(ARDUCHIP_TEST1);
+    //Serial.println(temp);
+    if (temp != 0x55) {
+      Serial.println(F("ACK CMD SPI interface Error! END"));
+      delay(1000); continue;
+    } else {
+      spi = true;
+      break;
+    }
+  }
+  while (1) {
+    //Check if the camera module type is OV5642
+    myCAM.wrSensorReg16_8(0xff, 0x01);
+    myCAM.rdSensorReg16_8(OV5642_CHIPID_HIGH, &vid);
+    myCAM.rdSensorReg16_8(OV5642_CHIPID_LOW, &pid);
+    if ((vid != 0x56) || (pid != 0x42)) {
+      Serial.println(F("ACK CMD Can't find OV5642 module! END"));
+      delay(1000); continue;
+    }
+    else {
+      module = true;
+      break;
+    }
+  }
 
 uint8_t read_fifo_burst(ArduCAM myCAM) {
   uint8_t temp = 0, temp_last = 0;
