@@ -66,6 +66,17 @@ void resetCam() {
     }
   }
 
+  //Change to JPEG capture mode and initialize the OV5642 module
+  myCAM.set_format(JPEG);
+  myCAM.InitCAM();
+
+  myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);    // VSYNC is active HIGH
+  myCAM.OV5642_set_JPEG_size(OV5642_2592x1944);       //  resolution
+  if (spi && module == true) {
+    Serial.println("Camera is set");
+  }
+}
+
 uint8_t read_fifo_burst(ArduCAM myCAM) {
   uint8_t temp = 0, temp_last = 0;
   
