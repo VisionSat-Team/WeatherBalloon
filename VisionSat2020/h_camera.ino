@@ -2,16 +2,16 @@
    Camera
 
    Camera Functions:
-    - takePicture(String picFileName): 
+    - takePicture(String picFileName):
         - begins process of taking picture and saving it
-        - receives String picFileName, which is the name for the picture that is going to be saved 
-    - read_fifo_burst(ArduCAM myCAM, String picFileName): 
+        - receives String picFileName, which is the name for the picture that is going to be saved
+    - read_fifo_burst(ArduCAM myCAM, String picFileName):
         - traverses the FIFO buffer and saves the bytes to the text file
-        - receives: 
+        - receives:
           - an ArduCAM object, for reading the FIFO buffer
-          - receives String picFileName, which is the name for the picture that is going to be saved 
+          - receives String picFileName, which is the name for the picture that is going to be saved
     - setCam(): resets camera registers so that another picture can be taken
-        - returns if the reset was successful 
+        - returns if the reset was successful
 */
 
 
@@ -29,11 +29,11 @@ void takePicture(String picFileName) {
     // Waiting for capture to be done
     Serial.print("waiting");
     while (!myCAM.get_bit(ARDUCHIP_TRIG , CAP_DONE_MASK)) {
-      delay(10);
+      delay(100);
       Serial.print('.');
     }
 
-    Serial.println(F("Capture Done")); delay(50);
+    Serial.println(F("Capture Done"));
 
     read_fifo_burst(myCAM, picFileName);
 
@@ -43,7 +43,7 @@ void takePicture(String picFileName) {
 }
 
 
-void read_fifo_burst(ArduCAM myCAM, String picFileName) {
+uint8_t read_fifo_burst(ArduCAM myCAM, String picFileName) {
   uint8_t temp = 0, temp_last = 0;
   uint32_t length = 0;
   uint32_t realLength = 0;
@@ -52,57 +52,83 @@ void read_fifo_burst(ArduCAM myCAM, String picFileName) {
 
   // Error States
   if (length >= MAX_FIFO_SIZE) { // MAX_FIFO_SIZE 512KB for the OV5642
-    Serial.println(F("Over size. ")); return;
+    Serial.println(F("Over size. ")); return 0;
   }
   if (length == 0 ) {
-    Serial.println(F("Size is 0. ")); return;
+    Serial.println(F("Size is 0. ")); return 0;
   }
 
   // Prepare for capture
   myCAM.CS_LOW();
   myCAM.set_fifo_burst();//Set fifo burst mode
   temp = SPI.transfer(0x00);
-  length--;
 
   // Create File to be saved
-  File picFile = SD.open(picFileName, FILE_WRITE);
+  //  File picFile = SD.open(picFileName, FILE_WRITE);
+
+
+
+  //  while ( length-- ) {
+  //    temp_last = temp;
+  //    temp =  SPI.transfer(0x00);
+  //    is_header == true;
+  //    if (is_header == true) {
+  //      // Testing: Print Bytes out as the FIFO buffer is read
+  //      Serial.print(','); Serial.print(temp, DEC);
+  //
+  //      // Print Bytes to the picFile as they are read from the buffer
+  ////      picFile.print(','); picFile.print(temp, DEC);
+  //      realLength++;
+  //    }
+  //
+  //    // End of image
+  //    else if ((temp == 0xD8) && (temp_last == 0xFF)) {
+  //      is_header = true;
+  //      Serial.println(F("IMG END"));
+  //      Serial.print(temp_last, DEC); Serial.print(',');
+  //      Serial.print(temp, DEC);
+  //      realLength = realLength + 2;
+  //    }
+  //    if ((temp == 0xD9) && (temp_last == 0xFF)) {
+  //      break; // exit while loop
+  //    }
+  //    delayMicroseconds(15);
+  //  }
+
+  Serial.println("Entering while(length--) loop ");
 
   while ( length-- ) {
     temp_last = temp;
     temp =  SPI.transfer(0x00);
     if (is_header == true) {
-      // Testing: Print Bytes out as the FIFO buffer is read
       Serial.print(','); Serial.print(temp, DEC);
-
-      // Print Bytes to the picFile as they are read from the buffer
-      picFile.print(','); picFile.print(temp, DEC);
       realLength++;
     }
-
-    // End of image
     else if ((temp == 0xD8) && (temp_last == 0xFF)) {
       is_header = true;
-      Serial.println(F("IMG END"));
+      Serial.println(F("IMG End"));
       Serial.print(temp_last, DEC); Serial.print(',');
       Serial.print(temp, DEC);
       realLength = realLength + 2;
     }
-
     if ((temp == 0xD9) && (temp_last == 0xFF)) {
-      break; // exit while loop
+      break;
     }
     delayMicroseconds(15);
   }
 
-  // Close the picture file
-  picFile.close();
 
-  // Testing
-  //  Serial.println();
-  //  Serial.print("Real Length: "); Serial.println(realLength, DEC);
+
+  // Close the picture file
+  //  picFile.close();
+
+  //   Testing
+  Serial.println();
+  Serial.print("Real Length: "); Serial.println(realLength, DEC);
 
   myCAM.CS_HIGH();
   is_header = false;
+  return 1;
 }
 
 
@@ -125,7 +151,7 @@ boolean setCam() {
   temp = myCAM.read_reg(ARDUCHIP_TEST1);
   //Serial.println(temp);
   if (temp != 0x55) {
-    Serial.println(F("SPI interface Error! END"));
+    Serial.println(F("SPI interface Error! "));
     delay(1000);
   }
   else {
@@ -146,15 +172,17 @@ boolean setCam() {
   if (spi && module == true) {
     Serial.println("Camera is set");
     camReady = true;
+
+    //Change to JPEG capture mode
+    myCAM.set_format(JPEG);
+
+    // Initialize Camera
+    myCAM.InitCAM();
+    myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);    // VSYNC is active HIGH
+    //    myCAM.OV5642_set_JPEG_size(OV5642_2592x1944);       //  resolution
+    myCAM.OV5642_set_JPEG_size(OV5642_320x240);       //  resolution ***** Testing
+
   }
-
-  //Change to JPEG capture mode
-  myCAM.set_format(JPEG);
-
-  // Initialize Camera
-  myCAM.InitCAM();
-  myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);    // VSYNC is active HIGH
-  myCAM.OV5642_set_JPEG_size(OV5642_2592x1944);       //  resolution
 
   return camReady;
 }
