@@ -45,16 +45,15 @@ pt100rtd PT100 = pt100rtd();
 const int cameraCS = 7; 
 ArduCAM myCAM(OV5642, cameraCS);
 bool is_header = false;
-uint8_t read_fifo_burst(ArduCAM myCAM);
+uint8_t read_fifo_burst(ArduCAM myCAM, String picFileName);
 // Camera Variable END 
 
 
 // SD Card START 
 const int SD_CS = 53; 
-String fileName;
 const int dataSaveCountAddress = 0; 
 const int dataSaveRolloverAddress = 1; 
-boolean SDAvailable; 
+boolean SDAvailable = false; 
 // SD Card END 
 
 
