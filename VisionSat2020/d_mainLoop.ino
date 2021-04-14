@@ -12,17 +12,25 @@ void loop() {
   // True if it has been (beaconDelay) time since last beacon
   if (millis() - beaconDelay >= previousMillis) {
     // Capture Sensor Data 
-    String sensorData = captureData();
+//    String sensorData = captureData();
+    String sensorData = " "; 
+    
 
     // Beacon TNC data to ground station 
     keyUp(sensorData);
 
     // Start new file name "####"
-    String fileName = newFileName; 
+    String genFileName = newFileName(); // General file name
 
     // Create Names for each file 
-    String dataFileName = fileName + ".txt";      // "####.txt"
-    String picFileName =  fileName + "pic.txt";   // "####pic.txt" 
+    String dataFileName = genFileName + ".txt";      // "####.txt"
+    String picFileName =  genFileName + "pic.txt";   // "####pic.txt" 
+
+    Serial.println(sensorData); 
+    Serial.println(dataFileName); 
+    Serial.println(picFileName);
+    Serial.println("  end of main loop"); 
+    Serial.println(); 
 
     // Save sensorData to SD card
     saveData(sensorData, dataFileName);
@@ -32,6 +40,9 @@ void loop() {
 
     // Update Timer 
     previousMillis = millis();
+
+    // Testing 
+    
   }
 
   // Check if TNC has a message 
@@ -46,8 +57,8 @@ String captureData() {
   String gpsData = String(getLocation());
   String altimeterData = String(getPressure());
   String timeData = (getTime());
-  // SDAvailable? 
-  // Wire Cut? 
+  // SDAvailable? ****
+  // Wire Cut? ****
 
   return timeData + "," + gpsData + "," + altimeterData + "," + temperatureData;
 }
