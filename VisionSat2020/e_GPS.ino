@@ -8,12 +8,12 @@
 */
 
 String getLocation() {
-  // Update GPS 
-  captureGPS(); 
+  // Update GPS
+  captureGPS();
 
   // Parse NMEA Data
   if (GPS.fix) {
-    return String(GPS.latitudeDegrees ) + ", " + String(GPS.longitudeDegrees) + ", " + String(GPS.altitude) + ", " + String(getFeetPerSec);
+    return String(GPS.latitudeDegrees ) + ", " + String(GPS.longitudeDegrees) + ", " + String(GPS.altitude) + ", " + getFeetPerSec();
   }
 
   // Return error
@@ -26,9 +26,9 @@ void captureGPS() {
   while (sentenceCount <= 2) {
     int initTries = 5;
     //break out of infinite loop
-    while (!GPS.newNMEAreceived() && initTries > 0){
+    while (!GPS.newNMEAreceived() && initTries > 0) {
       GPS.read();
-      initTries--
+      initTries--;
     }
     GPS.parse(GPS.lastNMEA());
     sentenceCount += 1;
@@ -52,11 +52,10 @@ String getTime() {
 }
 
 // return the rate of ascent and descent in feet per seconds.
-String getFeetPerSec(){
+String getFeetPerSec() {
   int oldAltitude = GPS.altitude;
   delay(1000);
   int currentAltitude = GPS.altitude;
   return String (currentAltitude - oldAltitude);
-  
-}
 
+}
