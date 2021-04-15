@@ -54,9 +54,13 @@ void loop() {
 String captureData() {
   // Capture Data from each Sensor
   String temperatureData = String(toFarenheit());
+   captureCommandStation()
   String gpsData = String(getLocation());
-  String altimeterData = String(getPressure());
+  captureCommandStation()
+   String altimeterData = String(getPressure());
+   captureCommandStation()
   String timeData = (getTime());
+    captureCommandStation()
   // SDAvailable? ****
   // Wire Cut? ****
 
