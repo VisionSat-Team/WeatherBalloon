@@ -15,7 +15,7 @@ void captureGroundStation()
     tncMessage.toLowerCase();
       
       if(tncMessage.equals("cutdown")) {
-        //burnWire();
+        burnWire();
         keyUp("Cutdown Command Recieved");
      }
      else if(tncMessage.equals("beacon")){
