@@ -49,8 +49,11 @@ uint8_t read_fifo_burst(ArduCAM myCAM, String picFileName) {
   uint32_t realLength = 0;
   length = myCAM.read_fifo_length();
   Serial.print("Fifo Length: "); Serial.println(length, DEC);
+  // Buffer
+  byte byteBuffer[256];
+  int i = 0;
 
-  // Error States
+  // Check Error States
   if (length >= MAX_FIFO_SIZE) { // MAX_FIFO_SIZE 512KB for the OV5642
     Serial.println(F("Over size. ")); return 0;
   }
@@ -61,74 +64,80 @@ uint8_t read_fifo_burst(ArduCAM myCAM, String picFileName) {
   // Prepare for capture
   myCAM.CS_LOW();
   myCAM.set_fifo_burst();//Set fifo burst mode
-  temp = SPI.transfer(0x00);
 
-  // Create File to be saved
-  //  File picFile = SD.open(picFileName, FILE_WRITE);
-
-
-
-  //  while ( length-- ) {
-  //    temp_last = temp;
-  //    temp =  SPI.transfer(0x00);
-  //    is_header == true;
-  //    if (is_header == true) {
-  //      // Testing: Print Bytes out as the FIFO buffer is read
-  //      Serial.print(','); Serial.print(temp, DEC);
-  //
-  //      // Print Bytes to the picFile as they are read from the buffer
-  ////      picFile.print(','); picFile.print(temp, DEC);
-  //      realLength++;
-  //    }
-  //
-  //    // End of image
-  //    else if ((temp == 0xD8) && (temp_last == 0xFF)) {
-  //      is_header = true;
-  //      Serial.println(F("IMG END"));
-  //      Serial.print(temp_last, DEC); Serial.print(',');
-  //      Serial.print(temp, DEC);
-  //      realLength = realLength + 2;
-  //    }
-  //    if ((temp == 0xD9) && (temp_last == 0xFF)) {
-  //      break; // exit while loop
-  //    }
-  //    delayMicroseconds(15);
-  //  }
-
-  Serial.println("Entering while(length--) loop ");
-
+  // Read data from the Camera FIFO buffer
   while ( length-- ) {
     temp_last = temp;
     temp =  SPI.transfer(0x00);
+
     if (is_header == true) {
+      // Testing: Print Bytes out as the FIFO buffer is read
       Serial.print(','); Serial.print(temp, DEC);
       realLength++;
+
+      // Print Bytes to the picFile as they are read from the buffer
+      //      picFile.print(','); picFile.print(temp, DEC);
+      
+      // Write image data to buffer if not full.
+      // CloudSat Addition START 
+      if (i < 256)
+        byteBuffer[i++] = temp;
+      else
+      {
+        //Write 256 bytes image data to file.
+        myCAM.CS_HIGH();
+        outFile.write(byteBuffer, 256);
+        i = 0;
+        byteBuffer[i++] = temp;
+        myCAM.CS_LOW();
+        myCAM.set_fifo_burst();
+      }
+      // CloudSat Addition END
     }
+
     else if ((temp == 0xD8) && (temp_last == 0xFF)) {
       is_header = true;
       Serial.println(F("IMG End"));
       Serial.print(temp_last, DEC); Serial.print(',');
       Serial.print(temp, DEC);
-      realLength = realLength + 2;
+
+      // CloudSat Addition START 
+      is_header = true;
+      byteBuffer[i++] = temp_last;
+      byteBuffer[i++] = temp;
+      // CloudSat Addition END
     }
-    if ((temp == 0xD9) && (temp_last == 0xFF)) {
-      break;
-    }
-    delayMicroseconds(15);
+    realLength = realLength + 2;
   }
 
+  //If find the end, break while
+  if ((temp == 0xD9) && (temp_last == 0xFF)) {
+    
+    //save the last  0XD9
+    byteBuffer[i++] = temp;  
 
+    //Write the remain bytes in the buffer.
+    myCAM.CS_HIGH();
+    outFile.write(byteBuffer, i);
 
-  // Close the picture file
-  //  picFile.close();
+    //Close the file
+    picFile.close();
+    Serial.println(F("Image save OK."));
+    is_header = false;
+    i = 0;
 
-  //   Testing
-  Serial.println();
-  Serial.print("Real Length: "); Serial.println(realLength, DEC);
+    
+    break;
+  }
 
-  myCAM.CS_HIGH();
-  is_header = false;
-  return 1;
+  delayMicroseconds(15);
+}
+
+//   Testing
+Serial.println();
+Serial.print("Real Length: "); Serial.println(realLength, DEC);
+
+return 1;
 }
 
 
@@ -153,6 +162,7 @@ boolean setCam() {
   if (temp != 0x55) {
     Serial.println(F("SPI interface Error! "));
     delay(1000);
+    spi = false;
   }
   else {
     spi = true;
@@ -181,7 +191,6 @@ boolean setCam() {
     myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);    // VSYNC is active HIGH
     //    myCAM.OV5642_set_JPEG_size(OV5642_2592x1944);       //  resolution
     myCAM.OV5642_set_JPEG_size(OV5642_320x240);       //  resolution ***** Testing
-
   }
 
   return camReady;
