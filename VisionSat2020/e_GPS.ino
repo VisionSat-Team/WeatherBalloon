@@ -37,10 +37,9 @@ void captureGPS() {
 
 
 String getTime() {
-  //Turns the hours into standard time
-  int hours = GPS.hour - 6;
-  if (hours > 12) hours -= 12;
-  if (hours <= 0) hours += 12;
+  //Turns the hours into standard time  16 % 12 =4
+  int hours = (GPS.hour - 5) % 12;
+  if (hours = 0) hours = 12;
 
   //String manlipulations for User to read easier
   String minutes = String(GPS.minute);
