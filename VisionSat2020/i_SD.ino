@@ -13,7 +13,10 @@
 void saveData (String sensorData, String fileName) {
   // Save File using String name
   File dataFile = SD.open(fileName, FILE_WRITE);
-
+  
+//  Serial.print("SD Saving: ");
+//  Serial.println(dataFile); 
+  
   if (dataFile) {
     dataFile.println(sensorData);
     dataFile.close();
@@ -64,3 +67,8 @@ String newFileName() {
   return fileName; 
 }
 
+
+void ResetEEPROM () { 
+  for (int i = 0; i < EEPROM.length(); i++)
+    EEPROM.write(i, 0); 
+}
