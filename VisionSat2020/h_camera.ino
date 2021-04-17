@@ -49,9 +49,6 @@ uint8_t read_fifo_burst(ArduCAM myCAM, String picFileName) {
   uint32_t realLength = 0;
   length = myCAM.read_fifo_length();
   Serial.print("Fifo Length: "); Serial.println(length, DEC);
-  // Buffer
-  byte byteBuffer[256];
-  int i = 0;
 
   // Check Error States
   if (length >= MAX_FIFO_SIZE) { // MAX_FIFO_SIZE 512KB for the OV5642
@@ -60,6 +57,9 @@ uint8_t read_fifo_burst(ArduCAM myCAM, String picFileName) {
   if (length == 0 ) {
     Serial.println(F("Size is 0. ")); return 0;
   }
+
+  // Create File
+  File picFile = SD.open(picFileName, FILE_WRITE);
 
   // Prepare for capture
   myCAM.CS_LOW();
@@ -70,74 +70,72 @@ uint8_t read_fifo_burst(ArduCAM myCAM, String picFileName) {
     temp_last = temp;
     temp =  SPI.transfer(0x00);
 
+    // State 1:
     if (is_header == true) {
       // Testing: Print Bytes out as the FIFO buffer is read
       Serial.print(','); Serial.print(temp, DEC);
       realLength++;
 
-      // Print Bytes to the picFile as they are read from the buffer
-      //      picFile.print(','); picFile.print(temp, DEC);
-      
-      // Write image data to buffer if not full.
-      // CloudSat Addition START 
-      if (i < 256)
-        byteBuffer[i++] = temp;
-      else
-      {
-        //Write 256 bytes image data to file.
-        myCAM.CS_HIGH();
-        outFile.write(byteBuffer, 256);
-        i = 0;
-        byteBuffer[i++] = temp;
-        myCAM.CS_LOW();
-        myCAM.set_fifo_burst();
-      }
-      // CloudSat Addition END
+      // Turn Camera CS HIGH/ "off"
+      myCAM.CS_HIGH();
+
+      // Save byte to picFile as they are read from the buffer
+      picFile.print(','); picFile.print(temp, DEC);
+
+      // Turn Camera CS LOW/ "back on"
+      myCAM.CS_LOW();
+      myCAM.set_fifo_burst();
     }
 
+    // State 2: Found the start of the buffer 
     else if ((temp == 0xD8) && (temp_last == 0xFF)) {
       is_header = true;
       Serial.println(F("IMG End"));
       Serial.print(temp_last, DEC); Serial.print(',');
       Serial.print(temp, DEC);
 
-      // CloudSat Addition START 
-      is_header = true;
-      byteBuffer[i++] = temp_last;
-      byteBuffer[i++] = temp;
-      // CloudSat Addition END
+      // Turn Camera CS HIGH/ "off"
+      myCAM.CS_HIGH();
+
+      // Save byte to picFile as they are read from the buffer
+      picFile.print(temp_last, DEC); picFile.print(',');
+      picFile.print(temp, DEC);
+
+      // Turn Camera CS LOW/ "back on"
+      myCAM.CS_LOW();
+      myCAM.set_fifo_burst();
+
+      realLength = realLength + 2;
     }
-    realLength = realLength + 2;
+
+
+    // Step 3: End of the buffer, break out of while( length-- ) 
+    if ((temp == 0xD9) && (temp_last == 0xFF)) {
+
+      //save the last  0XD9
+      // Turn Camera CS HIGH/ "off"
+      myCAM.CS_HIGH();
+
+      // Save final byte to picFile 
+      picFile.print(','); picFile.print(temp, DEC);
+
+      //Close the file
+      picFile.close();
+
+      Serial.println("Image save OK.");
+      is_header = false;
+
+      break;
+    }
+
+    delayMicroseconds(15);
   }
 
-  //If find the end, break while
-  if ((temp == 0xD9) && (temp_last == 0xFF)) {
-    
-    //save the last  0XD9
-    byteBuffer[i++] = temp;  
+  //   Testing
+  Serial.println();
+  Serial.print("Real Length: "); Serial.println(realLength, DEC);
 
-    //Write the remain bytes in the buffer.
-    myCAM.CS_HIGH();
-    outFile.write(byteBuffer, i);
-
-    //Close the file
-    picFile.close();
-    Serial.println(F("Image save OK."));
-    is_header = false;
-    i = 0;
-
-    
-    break;
-  }
-
-  delayMicroseconds(15);
-}
-
-//   Testing
-Serial.println();
-Serial.print("Real Length: "); Serial.println(realLength, DEC);
-
-return 1;
+  return 1;
 }
 
 
