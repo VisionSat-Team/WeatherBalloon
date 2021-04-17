@@ -73,9 +73,6 @@ void setup() {
     SDAvailable = SD.begin(SD_CS);
     initTries--;
   }
-  if (SDAvailable) { // *****
-    Serial.println("SD init true");
-  }
   // SD Card END
 
 
@@ -90,11 +87,9 @@ void setup() {
   // Cut Down END
 
 
-  // Safe wait, get ready to go into main loop
-  //  delay(5000);
-
   //Testing
   ResetEEPROM();
   beaconDelay = 1000;
-  Serial.println("  end of setup");
+  Serial.println("*** End of setup ***");
+  Serial.println(); 
 }
