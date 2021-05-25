@@ -9,8 +9,10 @@
 
 void loop() {
 
-  // True if it has been (beaconDelay) time since last beacon
-  if (millis() - beaconDelay >= previousMillis) {
+  // True if it has been (beaconDelay) time since last beacon;
+Serial.println("start counting");
+  if (millis() - beaconDelay[whichDelay]*1000 >= previousMillis) {//convert to milliseconds
+    Serial.println(beaconDelay[whichDelay]); //number of seconds
     // Capture Sensor Data
     String sensorData = captureData();
     //    String sensorData = "";
@@ -40,6 +42,8 @@ void loop() {
     Serial.println(picFileName);
     Serial.println("  end of main loop");
     Serial.println();
+    whichDelay++;
+    whichDelay = whichDelay%3;
   }
 
   // Check if TNC has a message
