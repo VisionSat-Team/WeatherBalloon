@@ -25,5 +25,20 @@
  *        The blue light on the GPS module indicates that there is currently a fix.
  *        Without the fix the GPS can not recieve any data.
  */
-
+boolean setCam();
+ void ResetEEPROM();
+ String captureData();
+ void keyUp(String messageToGround);
+ String newFileName();
+ void saveData (String sensorData, String fileName);
+ void takePicture(String picFileName);
+ void captureGroundStation();
+ float toFarenheit();
+ float lookUpTemperature();
+ String getLocation();
+ void captureGPS();
+ String getTime();
+ String getPressure(); 
+ String getFeetPerSec();
+ void burnWire();
  
