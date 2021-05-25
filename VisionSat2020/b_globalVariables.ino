@@ -5,7 +5,8 @@
  */
 
 // General START
-long beaconDelay;
+long beaconDelay[3]; //number of seconds to delay for beacon
+int whichDelay; //selector for which beacon delay value to use
 long previousMillis; // Last Beacon Time
 // General END
 
