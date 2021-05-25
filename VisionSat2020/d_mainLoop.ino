@@ -10,7 +10,7 @@
 void loop() {
 
   // True if it has been (beaconDelay) time since last beacon;
-Serial.println("start counting");
+
   if (millis() - beaconDelay[whichDelay]*1000 >= previousMillis) {//convert to milliseconds
     Serial.println(beaconDelay[whichDelay]); //number of seconds
     // Capture Sensor Data
