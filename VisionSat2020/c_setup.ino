@@ -7,7 +7,9 @@
 void setup() {
 
   // General START
-  beaconDelay = 60000; // 60 second delay between beacons
+   beaconDelay[0] = 30;
+  beaconDelay[1] = 45;
+  beaconDelay[2] = 60; // 60 second delay between beacons
   Serial.begin(115200);
   Serial3.begin(115200);
   Serial2.begin(115200);
@@ -89,7 +91,10 @@ void setup() {
 
   //Testing
   ResetEEPROM();
-  beaconDelay = 1000;
+  beaconDelay[0] = 30;
+  beaconDelay[1] = 45;
+  beaconDelay[2] = 60;
+  whichDelay = 0;
   Serial.println("*** End of setup ***");
   Serial.println(); 
 }
