@@ -35,6 +35,7 @@ void loop() {
 
     // Update Timer
     previousMillis = millis();
+      arduinoHIghLow();
 
     // Testing
     Serial.println(sensorData);
