@@ -81,7 +81,10 @@ void setup() {
   //TNC Start
   port1.begin(19200);
   //TNC END
-
+//APRS Start
+      int aprsReadPin = 38; 
+  int powerRelayPin = 39;
+    //APRS END
 
   // Cut Down START
   pinMode(burnWirePin, OUTPUT);
