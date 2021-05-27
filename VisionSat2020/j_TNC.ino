@@ -66,13 +66,9 @@ void arduinoHIghLow ()
 // If APRS is high and we are keying up, keep power relay at high
 
 
-  int aprsReadPin = 38; 
-  int powerRelayPin = 39;
 
-  pinMode(aprsReadPin, INPUT);
-  pinMode(powerRelayPin, OUTPUT);
 
-  if(beacon != 60000 && MilliSeconds = 59000){
+  if(beacon != 60000 && MilliSeconds == 59000){
     
     if(digitalRead(aprsReadPin) == HIGH){  //check if aprs is high
 
