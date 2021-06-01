@@ -1,7 +1,7 @@
 void captureGroundStation()
 {
   
-  if (port1.available() > 0) {
+  while (port1.available() > 0 && transmitNow) {
     Serial.println("Packet Recieved");
     tncMessage = port1.readStringUntil(59); // Reads until ASCII#59 (;)
     tncMessage = tncMessage.substring(25);// Starts reading after Header
