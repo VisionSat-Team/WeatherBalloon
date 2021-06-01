@@ -9,7 +9,10 @@
 void captureGroundStation()
 {
   // If TNC buffer has a message 
-  if (port1.available() > 0) {
+ while (port1.available() > 0 && listenNow) {
+   if(millis()-previousMillis>beaconDelay[whichDelay]*1000){
+     listenNow = false;
+   }
     tncMessage = port1.readStringUntil(59); // Reads until ASCII#59 (;)
     tncMessage = tncMessage.substring(25);// Starts reading after Header
     tncMessage.toLowerCase();
