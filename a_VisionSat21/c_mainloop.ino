@@ -4,7 +4,7 @@
 void loop() {
 
   if (millis() - beaconDelay >= previousMillis) {
-    
+    transmitNow = true;
     Serial.println("looping...");
     sensorData = captureData();
     keyUp(sensorData);
