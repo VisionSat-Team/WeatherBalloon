@@ -12,6 +12,7 @@ void captureGroundStation()
  while (port1.available() > 0 && listenNow) {
    if(millis()-previousMillis>beaconDelay[whichDelay]*1000){
      listenNow = false;
+     break;
    }
     tncMessage = port1.readStringUntil(59); // Reads until ASCII#59 (;)
     tncMessage = tncMessage.substring(25);// Starts reading after Header
