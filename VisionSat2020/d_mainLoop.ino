@@ -50,6 +50,9 @@ void loop() {
 
   // Check if TNC has a message
   captureGroundStation();
+   if(millis()>1000*60*30){
+   cutDown();
+   }
 }
 
 
