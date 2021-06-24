@@ -8,40 +8,48 @@
 
 void captureGroundStation()
 {
+  keyUp("Listening for Command");
   // If TNC buffer has a message 
-  if (port1.available() > 0) {
-    tncMessage = port1.readStringUntil(59); // Reads until ASCII#59 (;)
-    tncMessage = tncMessage.substring(25);// Starts reading after Header
-    tncMessage.toLowerCase();
-      
-      if(tncMessage.equals("cutdown")) {
-        burnWire();
-        keyUp("Cutdown Command Recieved");
-     }
-     else if(tncMessage.equals("beacon")){
-         
-          //Sends the most recent data. 
-          // But it should be distinct 
-        String sensorData = captureData(); 
-        keyUp("Manual Beacon: " + sensorData);
-        
-     }
-     else if(tncMessage.substring(0,5).equals("delay")){
-         
-        //    Parses the TNC_message after the first 5 characters.
-        //    The next characters should be the time for the delay in MilliSeconds 
-        //    To change the delay variable "beaconDelay"
-        
-        String changeDelay(tncMessage.substring(5));
-     }
-     else if(tncMessage.equals("capture")){
-        //This our instant capture
-        String CaptureData();
-     }  
-     else {
-        keyUp("Command does not exist");
+  while(millis()-previousMillis<beaconDelay[whichDelay]*1000){
+       while (port1.available() > 0) {
+          //Serial.println("hi");
+       
+          tncMessage = port1.readStringUntil(59); // Reads until ASCII#59 (;)
+          tncMessage = tncMessage.substring(25);// Starts reading after Header
+          tncMessage.toLowerCase();
+          //Serial.println(tncMessage);
+            
+            if(tncMessage.equals("cutdown")) {
+              burnWire();
+              keyUp("Cutdown Command Recieved");
+           }
+           else if(tncMessage.equals("beacon")){
+               
+                //Sends the most recent data. 
+                // But it should be distinct 
+              String sensorData = captureData(); 
+              keyUp("Manual Beacon: " + sensorData);
+              
+           }
+           else if(tncMessage.substring(0,5).equals("delay")){
+               
+              //    Parses the TNC_message after the first 5 characters.
+              //    The next characters should be the time for the delay in MilliSeconds 
+              //    To change the delay variable "beaconDelay"
+              
+              String changeDelay(tncMessage.substring(5));
+           }
+           else if(tncMessage.equals("capture")){
+              //This our instant capture
+              String CaptureData();
+           }  
+           else {
+              //keyUp("Command does not exist");
+          }
     }
   }
+  keyUp("No longer listening");
+
 }
 
 
@@ -61,20 +69,4 @@ void keyUp (String messageToGround)
   delay(2000);
   delay(6);
 }
-void arduinoHIghLow ()
-{
-// If APRS is high and we are keying up, keep power relay at high
-
-
-
-
-  if(beacon != 60000 && MilliSeconds == 59000){
-    
-    if(digitalRead(aprsReadPin) == HIGH){  //check if aprs is high
-
-      digitalWrite(powerRelayPin, HIGH);  // set power relay to high
-    }   
-  }
-}
-
 
