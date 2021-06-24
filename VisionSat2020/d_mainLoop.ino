@@ -13,13 +13,12 @@ void loop() {
 
   if (millis() - beaconDelay[whichDelay]*1000 >= previousMillis) {//convert to milliseconds
     Serial.println(beaconDelay[whichDelay]); //number of seconds
+    
     // Capture Sensor Data
     String sensorData = captureData();
     //    String sensorData = "";
 
-    // Beacon TNC data to ground station
-    keyUp(sensorData);
-
+ 
     // Start new file name "####"
     String genFileName = newFileName(); // General file name
 
@@ -35,7 +34,7 @@ void loop() {
 
     // Update Timer
     previousMillis = millis();
-      arduinoHIghLow();
+//      arduinoHIghLow();
 
     // Testing
     Serial.println(sensorData);
@@ -45,10 +44,15 @@ void loop() {
     Serial.println();
     whichDelay++;
     whichDelay = whichDelay%3;
+    // Beacon TNC data to ground station
+    keyUp(sensorData);
+
+      captureGroundStation();
+      //Serial.println("Bye");
   }
 
   // Check if TNC has a message
-  captureGroundStation();
+ 
 }
 
 
@@ -58,8 +62,11 @@ String captureData() {
   String gpsData = String(getLocation());
   String altimeterData = String(getPressure());
   String timeData = (getTime());
+  String cameraStat = "Camera?" + String(setCam());
+  String cutDownStat = "Cut Down?" + String(isCutDown);
+  String sdStat = "SD?" + String(SDAvailable); 
   // SDAvailable? ****
   // Wire Cut? ****
 
-  return timeData + "," + gpsData + "," + altimeterData + "," + temperatureData;
+  return timeData + "," + gpsData + "," + altimeterData + "," + temperatureData+","+beaconDelay[whichDelay] + "s" + "," + cameraStat + "," + cutDownStat + "," + sdStat;
 }
