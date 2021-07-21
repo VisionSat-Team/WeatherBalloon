@@ -1,45 +1,57 @@
-void captureGroundStation()
-{
-  
-  if (port1.available() > 0) {
+#include <SoftwareSerial.h>
+const byte zeroHex = (0x00);
+// Header: Callsign and Start Characters 
+byte header[25] = {0xC0, zeroHex, 0xAE,0x6A,0xAA,0x98,0x40,0x40,0xF6,0xAE,0x6A,0xAA,0x98,0x40,0x40,0x60,0x86,0xA2,0x40,0x40,0x40,0x40,0x61,0x03,0xF0,};
+char in;  // Testing
+// Message Received from Ground Station 
+String message; 
+// Command to execute 
+String command;
+
+SoftwareSerial port1(0,1); // RX, TX
+
+void setup() {
+  // put your setup code here, to run once:
+ // put your setup code here, to run once:
+  // Serial.print("HELLO  ");
+  Serial.begin(9600);// print to console
+  port1.begin(19200);// print to tnc
+  Serial.println("demo to write to tnc  by Nick");
+}
+
+void loop() {
+  KEY_UP();
+    if (port1.available() > 0) {
     Serial.println("Packet Recieved");
-    tncMessage = port1.readStringUntil(59); // Reads until ASCII#59 (;)
-    tncMessage = tncMessage.substring(25);// Starts reading after Header
-    tncMessage.toLowerCase();
-    Serial.println(tncMessage);
-      
-      if(tncMessage.equals("cutdown")) {
-        //cutDown();
-        keyUp("Cutdown Command Recieved");
-     }
-     else if(tncMessage.equals("beacon")){
-         
-          //Sends the most recent data. 
-          // But it should be distinct 
-        
-        keyUp("Manual Beacon: " + sensorData);
-        
-     }
-     else if(tncMessage.substring(0,5).equals("delay")){
-         
-        //    Parses the TNC_message after the first 5 characters.
-        //    The next characters should be the time for the delay in MilliSeconds 
-        //    To change the delay variable "beaconDelay"
-        
-        String changeDelay(tncMessage.substring(5));
-     }
-     else if(tncMessage.equals("capture")){
-        //This our instant capture
-        String CaptureData();
-     }  
-     else {
-        keyUp("Command does not exist");
-    }
+    message = port1.readStringUntil(59); // Reads until ASCII#59 (;)
+    message = message.substring(25);// Starts reading after Header
+    message.toLowerCase();
+    Serial.println(message);
+
+    
+    // Parse command out of message
+     
+
+    // Switch Case 
+    //switch(command)
+
+    // Cut Wire
+
+    // Instant Capture 
+
+    // Beacon: Send most recent Sensor Data 
+
+    // Change delay 
+    
+    
   }
-  
+  //port1.flush(); // Empty Serial Buffer 
+  //KEY_UP();
+  //delay(100);
 
 }
-void keyUp (String messageToGround)
+
+void KEY_UP ()
 {  
 //Key up and put ax25 header.
 //port1 leads into the TNC which ultimately transmits over the radio
@@ -48,8 +60,8 @@ void keyUp (String messageToGround)
 
   port1.write(header, 25);
 
-  port1.print(messageToGround);//Data to be returned
-  Serial.println(messageToGround);
+  port1.print("Hello" );//Data to be returned
+  Serial.println("Hello");
   port1.write(0xC0);//c0.. End of frame
 
   delay(2000);
