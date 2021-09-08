@@ -1,32 +1,72 @@
+/*
+   mainLoop
+
+   Contains Main loop() & captureData()
+    - captureData(): returns data from all sensors as a String
+
+   INCOMPLETE
+*/
+
 void loop() {
 
-  if (millis() - beaconDelay >= previousMillis) {
-    
-    Serial.println("looping...");
-    sensorData = captureData();
-    //Serial.println(sensorData);
-    keyUp(sensorData);
-    saveData();
+  // True if it has been (beaconDelay) time since last beacon;
 
-    takePicture(); 
+  if (millis() - beaconDelay[whichDelay]*1000 >= previousMillis) {//convert to milliseconds
+    Serial.println(beaconDelay[whichDelay]); //number of seconds
     
-//  Serial.println( pressureSensor.GetPres());
+    // Capture Sensor Data
+    String sensorData = captureData();
+    //    String sensorData = "";
+
+ 
+    // Start new file name "####"
+    String genFileName = newFileName(); // General file name
+
+    // Create Names for each file
+    String dataFileName = genFileName + ".txt";      // "####.txt"
+    String picFileName =  genFileName + "pic.txt";   // "####pic.txt"
+
+    // Save sensorData to SD card
+    saveData(sensorData, dataFileName);
+
+    // Take Picture and save to SD Card
+    takePicture(picFileName);
+
+    // Update Timer
     previousMillis = millis();
+//      arduinoHIghLow();
+
+    // Testing
+    Serial.println(sensorData);
+    Serial.println(dataFileName);
+    Serial.println(picFileName);
+    Serial.println("  end of main loop");
+    Serial.println();
+    whichDelay++;
+    whichDelay = whichDelay%3;
+    // Beacon TNC data to ground station
+    keyUp(sensorData);
+
+      captureGroundStation();
+      //Serial.println("Bye");
   }
-  captureGroundStation();
+
+  // Check if TNC has a message
+ 
 }
 
-// Sensor & Data Functions
+
 String captureData() {
-  //Travis
-  //Fix the CaptureData and delete the global varibles except sensorData
-  //  Serial.println("start");
-  
-  captureGPS();
+  // Capture Data from each Sensor
   String temperatureData = String(toFarenheit());
   String gpsData = String(getLocation());
-  String altimeterData = String(getAltitude());
+  String altimeterData = String(getPressure());
   String timeData = (getTime());
+  String cameraStat = "Camera?" + String(setCam());
+  String cutDownStat = "Cut Down?" + String(isCutDown);
+  String sdStat = "SD?" + String(SDAvailable); 
+  // SDAvailable? ****
+  // Wire Cut? ****
 
-  return temperatureData + "," + altimeterData + "," + gpsData + "," + timeData;
+  return timeData + "," + gpsData + "," + altimeterData + "," + temperatureData+","+beaconDelay[whichDelay] + "s" + "," + cameraStat + "," + cutDownStat + "," + sdStat;
 }
